@@ -4,6 +4,53 @@
 import tensorflow as tf
 import core.common as common
 
+def customdarknet(input_data):
+
+    input_data = common.convolutional(input_data, (3, 3,  3,  64))
+    input_data = common.convolutional(input_data, (3, 3, 64,  96), downsample=True)
+
+    for i in range(1):
+        input_data = common.residual_block(input_data,  96,  64, 96)
+
+    input_data = common.convolutional(input_data, (3, 3,  96, 128), downsample=True)
+
+    for i in range(2):
+        input_data = common.residual_block(input_data, 128,  96, 128)
+
+    input_data = common.convolutional(input_data, (3, 3, 128, 192), downsample=True)
+
+    route_1 = input_data
+    for i in range(8):
+        input_data = common.residual_block(input_data, 192, 128, 192)
+
+    input_data = common.convolutional(input_data, (3, 3, 192, 256), downsample=True)
+
+    route_2 = input_data    
+    for i in range(4):
+        input_data = common.residual_block(input_data, 256, 192, 256)
+
+    for i in range(4):
+        input_data = common.dense_block(input_data, 96, 64, 96)        
+             
+    input_data = common.convolutional(input_data, (3, 3, 256, 384), downsample=True)
+
+    route_3 = input_data
+    for i in range(4):
+        input_data = common.residual_block(input_data, 384, 256, 384)        
+    
+    for i in range(4):
+        input_data = common.dense_block(input_data, 128, 96, 128) 
+    
+    input_data = common.convolutional(input_data, (3, 3, 384, 512), downsample=True)
+
+    route_4 = input_data    
+    for i in range(4):
+        input_data = common.residual_block(input_data, 512, 384, 512)
+
+    return route_1, route_2, route_3, route_4, input_data
+
+    
+    
 def darknet53(input_data):
 
     input_data = common.convolutional(input_data, (3, 3,  3,  32))
